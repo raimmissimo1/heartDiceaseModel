@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>heartDiseaseV2</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f3f6fb; color: #1f2937; }
+        .wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+        .card { width: 100%; max-width: 720px; background: #fff; border-radius: 16px; padding: 28px; box-shadow: 0 10px 30px rgba(0,0,0,.08); }
+        h1 { margin: 0 0 8px; text-align: center; }
+        p.sub { text-align: center; color: #6b7280; margin: 0 0 22px; }
+        form { display: grid; gap: 14px; }
+        label { font-weight: 700; margin-bottom: 6px; display: block; }
+        input, select, button { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid #d1d5db; font-size: 15px; }
+        button { background: #2563eb; color: #fff; border: 0; font-weight: 700; cursor: pointer; }
+        button:hover { background: #1d4ed8; }
+        .result { margin-top: 20px; padding: 16px; border-radius: 12px; background: #eef2ff; }
+        .risk { background: #fee2e2; }
+        .safe { background: #dcfce7; }
+        .error { background: #dbeafe; }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="card">
+            <h1>heartDiseaseV2</h1>
+            <p class="sub">Enter patient data to estimate heart disease risk.</p>
+
+            <form action="/predict" method="post">
+                <div>
+                    <label for="Age">Age</label>
+                    <input type="number" name="Age" id="Age" required>
+                </div>
+                <div>
+                    <label for="Sex">Sex</label>
+                    <select name="Sex" id="Sex" required>
+                        <option value="M">M</option>
+                        <option value="F">F</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="ChestPainType">ChestPainType</label>
+                    <select name="ChestPainType" id="ChestPainType" required>
+                        <option value="ATA">ATA</option>
+                        <option value="NAP">NAP</option>
+                        <option value="ASY">ASY</option>
+                        <option value="TA">TA</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="RestingBP">RestingBP</label>
+                    <input type="number" name="RestingBP" id="RestingBP" required>
+                </div>
+                <div>
+                    <label for="Cholesterol">Cholesterol</label>
+                    <input type="number" name="Cholesterol" id="Cholesterol" required>
+                </div>
+                <div>
+                    <label for="FastingBS">FastingBS</label>
+                    <select name="FastingBS" id="FastingBS" required>
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="RestingECG">RestingECG</label>
+                    <select name="RestingECG" id="RestingECG" required>
+                        <option value="Normal">Normal</option>
+                        <option value="ST">ST</option>
+                        <option value="LVH">LVH</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="MaxHR">MaxHR</label>
+                    <input type="number" name="MaxHR" id="MaxHR" required>
+                </div>
+                <div>
+                    <label for="ExerciseAngina">ExerciseAngina</label>
+                    <select name="ExerciseAngina" id="ExerciseAngina" required>
+                        <option value="N">N</option>
+                        <option value="Y">Y</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="Oldpeak">Oldpeak</label>
+                    <input type="number" step="0.1" name="Oldpeak" id="Oldpeak" required>
+                </div>
+                <div>
+                    <label for="ST_Slope">ST_Slope</label>
+                    <select name="ST_Slope" id="ST_Slope" required>
+                        <option value="Up">Up</option>
+                        <option value="Flat">Flat</option>
+                        <option value="Down">Down</option>
+                    </select>
+                </div>
+                <button type="submit">Predict</button>
+            </form>
+
+            {% if prediction_text %}
+                <div class="result {% if 'Error' in prediction_text %}error{% elif 'Risk' in prediction_text %}risk{% else %}safe{% endif %}">
+                    <strong>{{ prediction_text }}</strong>
+                    {% if risk_percent is not none %}
+                        <div>Risk probability: {{ risk_percent }}%</div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
