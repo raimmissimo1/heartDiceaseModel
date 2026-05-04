@@ -11,4 +11,4 @@ COPY . .
 
 EXPOSE 1111
 
-CMD ["gunicorn", "-b", "0.0.0.0:1111", "app:app"]
+CMD ["gunicorn", "-b", "0.0.0.0:1111", "--access-logfile", "-", "--error-logfile", "-", "--log-level", "info", "app:app"]

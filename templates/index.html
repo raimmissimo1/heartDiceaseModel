@@ -1,111 +1,286 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>heartDiseaseV2</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 0; background: #f3f6fb; color: #1f2937; }
-        .wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
-        .card { width: 100%; max-width: 720px; background: #fff; border-radius: 16px; padding: 28px; box-shadow: 0 10px 30px rgba(0,0,0,.08); }
-        h1 { margin: 0 0 8px; text-align: center; }
-        p.sub { text-align: center; color: #6b7280; margin: 0 0 22px; }
-        form { display: grid; gap: 14px; }
-        label { font-weight: 700; margin-bottom: 6px; display: block; }
-        input, select, button { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid #d1d5db; font-size: 15px; }
-        button { background: #2563eb; color: #fff; border: 0; font-weight: 700; cursor: pointer; }
-        button:hover { background: #1d4ed8; }
-        .result { margin-top: 20px; padding: 16px; border-radius: 12px; background: #eef2ff; }
-        .risk { background: #fee2e2; }
-        .safe { background: #dcfce7; }
-        .error { background: #dbeafe; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Heart Disease Model</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #0f172a, #1d4ed8 55%, #e2e8f0);
+      color: #0f172a;
+    }
+    .shell {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+    .card {
+      width: min(1166px, 100%);
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 24px;
+      box-shadow: 0 24px 80px rgba(15, 23, 42, 0.22);
+      overflow: hidden;
+    }
+    .hero {
+      padding: 38px 38px 28px;
+      background: linear-gradient(135deg, #0f172a, #1d4ed8);
+      color: white;
+    }
+    .hero h1 { margin: 0 0 12px; font-size: clamp(32px, 4vw, 50px); }
+    .hero p { margin: 0; max-width: 64ch; line-height: 1.5; color: rgba(255,255,255,0.85); font-size: 20px; }
+    form { padding: 28px 38px 34px; display: grid; gap: 18px; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+    .field { display: grid; gap: 8px; }
+    label { font-size: 17px; font-weight: 700; color: #1e293b; }
+    input, select {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 14px;
+      padding: 15px 22px;
+      font-size: 18px;
+      background: #fff;
+      outline: none;
+    }
+    input:focus, select:focus { border-color: #2563eb; box-shadow: 0 0 0 4px rgba(37,99,235,0.12); }
+    .actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 13px 18px;
+      background: #2563eb;
+      color: white;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    button:hover { background: #1d4ed8; }
+    .result {
+      margin-top: 2px;
+      padding: 18px 20px;
+      border-radius: 16px;
+      border-left: 6px solid;
+    }
+    .safe { background: #ecfdf5; border-color: #16a34a; color: #166534; }
+    .risk { background: #fef2f2; border-color: #dc2626; color: #991b1b; }
+    .error { background: #fff7ed; border-color: #f97316; color: #9a3412; }
+    .result h2 { margin: 0 0 8px; font-size: 20px; }
+    .result p { margin: 6px 0; line-height: 1.5; }
+    .validation-list { margin: 10px 0 0; padding-left: 20px; }
+    .validation-list li { margin: 4px 0; }
+    .note { color: #475569; font-size: 16px; }
+    .assistant {
+      margin: 0 38px 34px;
+      padding: 18px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, #f8fbff, #eef4ff);
+      border: 1px solid #dbeafe;
+    }
+    .assistant-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .assistant-head h2 { margin: 0; font-size: 20px; }
+    .assistant-head p { margin: 0; color: #475569; font-size: 13px; }
+    .chat {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 12px;
+      max-height: 240px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+    .bubble {
+      width: fit-content;
+      max-width: min(100%, 640px);
+      padding: 10px 12px;
+      border-radius: 14px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+    .bubble.user {
+      margin-left: auto;
+      background: #1d4ed8;
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+    .bubble.bot {
+      background: white;
+      color: #0f172a;
+      border: 1px solid #dbeafe;
+      border-bottom-left-radius: 4px;
+    }
+    .assistant-form { display: grid; gap: 10px; }
+    .assistant-input {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .assistant-input input { flex: 1 1 280px; }
+    .assistant-presets {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .preset {
+      border: 1px solid #bfdbfe;
+      background: white;
+      color: #1d4ed8;
+      padding: 9px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .preset:hover { background: #eff6ff; }
+    @media (max-width: 720px) {
+      .shell { padding: 14px; }
+      .grid { grid-template-columns: 1fr; }
+      .hero, form { padding-left: 18px; padding-right: 18px; }
+      .hero p { font-size: 16px; }
+      input, select { font-size: 16px; padding: 13px 14px; }
+      .assistant { margin-left: 18px; margin-right: 18px; }
+    }
+  </style>
 </head>
 <body>
-    <div class="wrap">
-        <div class="card">
-            <h1>heartDiseaseV2</h1>
-            <p class="sub">Enter patient data to estimate heart disease risk.</p>
+  <div class="shell">
+    <div class="card">
+      <div class="hero">
+        <h1>Heart Disease Model</h1>
+        <p>Форма ниже использует признаки пациента для оценки риска сердечного заболевания.</p>
+      </div>
 
-            <form action="/predict" method="post">
-                <div>
-                    <label for="Age">Age</label>
-                    <input type="number" name="Age" id="Age" required>
-                </div>
-                <div>
-                    <label for="Sex">Sex</label>
-                    <select name="Sex" id="Sex" required>
-                        <option value="M">M</option>
-                        <option value="F">F</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="ChestPainType">ChestPainType</label>
-                    <select name="ChestPainType" id="ChestPainType" required>
-                        <option value="ATA">ATA</option>
-                        <option value="NAP">NAP</option>
-                        <option value="ASY">ASY</option>
-                        <option value="TA">TA</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="RestingBP">RestingBP</label>
-                    <input type="number" name="RestingBP" id="RestingBP" required>
-                </div>
-                <div>
-                    <label for="Cholesterol">Cholesterol</label>
-                    <input type="number" name="Cholesterol" id="Cholesterol" required>
-                </div>
-                <div>
-                    <label for="FastingBS">FastingBS</label>
-                    <select name="FastingBS" id="FastingBS" required>
-                        <option value="0">0</option>
-                        <option value="1">1</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="RestingECG">RestingECG</label>
-                    <select name="RestingECG" id="RestingECG" required>
-                        <option value="Normal">Normal</option>
-                        <option value="ST">ST</option>
-                        <option value="LVH">LVH</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="MaxHR">MaxHR</label>
-                    <input type="number" name="MaxHR" id="MaxHR" required>
-                </div>
-                <div>
-                    <label for="ExerciseAngina">ExerciseAngina</label>
-                    <select name="ExerciseAngina" id="ExerciseAngina" required>
-                        <option value="N">N</option>
-                        <option value="Y">Y</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="Oldpeak">Oldpeak</label>
-                    <input type="number" step="0.1" name="Oldpeak" id="Oldpeak" required>
-                </div>
-                <div>
-                    <label for="ST_Slope">ST_Slope</label>
-                    <select name="ST_Slope" id="ST_Slope" required>
-                        <option value="Up">Up</option>
-                        <option value="Flat">Flat</option>
-                        <option value="Down">Down</option>
-                    </select>
-                </div>
-                <button type="submit">Predict</button>
-            </form>
-
-            {% if prediction_text %}
-                <div class="result {% if 'Error' in prediction_text %}error{% elif 'Risk' in prediction_text %}risk{% else %}safe{% endif %}">
-                    <strong>{{ prediction_text }}</strong>
-                    {% if risk_percent is not none %}
-                        <div>Risk probability: {{ risk_percent }}%</div>
-                    {% endif %}
-                </div>
-            {% endif %}
+      <form action="/predict" method="post">
+        <div class="grid">
+          <div class="field"><label for="Age">Возраст</label><input id="Age" name="Age" type="number" min="1" max="120" value="{{ form_data.get('Age', '') }}" required><div class="note">Полных лет пациента. Допустимо: 1-120.</div></div>
+          <div class="field"><label for="Sex">Пол</label><select id="Sex" name="Sex" required><option value="M" {% if form_data.get('Sex', 'M') == 'M' %}selected{% endif %}>M</option><option value="F" {% if form_data.get('Sex') == 'F' %}selected{% endif %}>F</option></select><div class="note">M = мужчина, F = женщина.</div></div>
+          <div class="field"><label for="ChestPainType">Тип боли в груди</label><select id="ChestPainType" name="ChestPainType" required><option value="ATA" {% if form_data.get('ChestPainType', 'ATA') == 'ATA' %}selected{% endif %}>ATA</option><option value="NAP" {% if form_data.get('ChestPainType') == 'NAP' %}selected{% endif %}>NAP</option><option value="ASY" {% if form_data.get('ChestPainType') == 'ASY' %}selected{% endif %}>ASY</option><option value="TA" {% if form_data.get('ChestPainType') == 'TA' %}selected{% endif %}>TA</option></select><div class="note">Категория боли из датасета.</div></div>
+          <div class="field"><label for="RestingBP">RestingBP</label><input id="RestingBP" name="RestingBP" type="number" min="40" max="250" value="{{ form_data.get('RestingBP', '') }}" required><div class="note">Артериальное давление в покое. Допустимо: 40-250.</div></div>
+          <div class="field"><label for="Cholesterol">Cholesterol</label><input id="Cholesterol" name="Cholesterol" type="number" min="0" max="700" value="{{ form_data.get('Cholesterol', '') }}" required><div class="note">Уровень холестерина в крови. Допустимо: 0-700.</div></div>
+          <div class="field"><label for="FastingBS">FastingBS</label><select id="FastingBS" name="FastingBS" required><option value="0" {% if form_data.get('FastingBS', '0') == '0' %}selected{% endif %}>0</option><option value="1" {% if form_data.get('FastingBS') == '1' %}selected{% endif %}>1</option></select><div class="note">1 если сахар натощак &gt; 120 мг/дл.</div></div>
+          <div class="field"><label for="RestingECG">RestingECG</label><select id="RestingECG" name="RestingECG" required><option value="Normal" {% if form_data.get('RestingECG', 'Normal') == 'Normal' %}selected{% endif %}>Normal</option><option value="ST" {% if form_data.get('RestingECG') == 'ST' %}selected{% endif %}>ST</option><option value="LVH" {% if form_data.get('RestingECG') == 'LVH' %}selected{% endif %}>LVH</option></select><div class="note">Результат ЭКГ в покое.</div></div>
+          <div class="field"><label for="MaxHR">MaxHR</label><input id="MaxHR" name="MaxHR" type="number" min="40" max="250" value="{{ form_data.get('MaxHR', '') }}" required><div class="note">Максимальная частота сердечных сокращений. Допустимо: 40-250.</div></div>
+          <div class="field"><label for="ExerciseAngina">ExerciseAngina</label><select id="ExerciseAngina" name="ExerciseAngina" required><option value="N" {% if form_data.get('ExerciseAngina', 'N') == 'N' %}selected{% endif %}>N</option><option value="Y" {% if form_data.get('ExerciseAngina') == 'Y' %}selected{% endif %}>Y</option></select><div class="note">N = нет, Y = да.</div></div>
+          <div class="field"><label for="Oldpeak">Oldpeak</label><input id="Oldpeak" name="Oldpeak" type="number" min="-5" max="10" step="0.1" value="{{ form_data.get('Oldpeak', '') }}" required><div class="note">Смещение ST относительно нагрузки. Допустимо: от -5 до 10.</div></div>
+          <div class="field"><label for="ST_Slope">ST_Slope</label><select id="ST_Slope" name="ST_Slope" required><option value="Up" {% if form_data.get('ST_Slope', 'Up') == 'Up' %}selected{% endif %}>Up</option><option value="Flat" {% if form_data.get('ST_Slope') == 'Flat' %}selected{% endif %}>Flat</option><option value="Down" {% if form_data.get('ST_Slope') == 'Down' %}selected{% endif %}>Down</option></select><div class="note">Наклон сегмента ST.</div></div>
         </div>
+
+        <div class="actions">
+          <button type="submit">Предсказать</button>
+        </div>
+
+        {% if prediction %}
+          <div class="result {{ status }}">
+            <h2>Результат</h2>
+            <p>{{ prediction }}</p>
+            {% if validation_errors %}
+              <ul class="validation-list">
+                {% for error in validation_errors %}
+                  {% if error %}<li>{{ error }}</li>{% endif %}
+                {% endfor %}
+              </ul>
+            {% endif %}
+            {% if risk_percent is not none %}
+              <p><strong>Вероятность риска:</strong> {{ risk_percent }}%</p>
+            {% endif %}
+            {% if recommendation %}
+              <p><strong>Что делать дальше:</strong> {{ recommendation }}</p>
+            {% endif %}
+          </div>
+        {% endif %}
+      </form>
+
+      <div class="assistant" id="assistant">
+        <div class="assistant-head">
+          <h2>ИИ ассистент</h2>
+          <p>Можно задавать свободные вопросы. Кнопки ниже - только примеры</p>
+        </div>
+
+        <div class="chat" id="chat"></div>
+
+        <div class="assistant-presets">
+          <button class="preset" type="button" data-question="Что означают поля формы?">Что означают поля?</button>
+          <button class="preset" type="button" data-question="Как интерпретировать риск?">Как читать риск?</button>
+          <button class="preset" type="button" data-question="Когда нужно обратиться к врачу?">Когда к врачу?</button>
+          <button class="preset" type="button" data-question="Почему ответы могут быть похожими?">Как он отвечает?</button>
+          <button class="preset" type="button" data-question="Кто ты и что умеешь?">Кто ты?</button>
+        </div>
+
+        <div class="assistant-form">
+          <div class="assistant-input">
+            <input id="assistantMessage" type="text" placeholder="Например: что значит Cholesterol или кто ты?">
+            <button id="sendAssistant" type="button">Спросить</button>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
+
+  <script>
+    const chat = document.getElementById('chat');
+    const messageInput = document.getElementById('assistantMessage');
+    const sendButton = document.getElementById('sendAssistant');
+    const presetButtons = document.querySelectorAll('.preset');
+    const patientForm = document.querySelector('form[action="/predict"]');
+
+    function addBubble(text, kind) {
+      const bubble = document.createElement('div');
+      bubble.className = `bubble ${kind}`;
+      bubble.textContent = text;
+      chat.appendChild(bubble);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    async function askAssistant(message) {
+      const text = message.trim();
+      if (!text) return;
+
+      addBubble(text, 'user');
+      messageInput.value = '';
+      sendButton.disabled = true;
+      sendButton.textContent = '...';
+
+      try {
+        const response = await fetch('/api/assistant', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: text,
+            patient: patientForm ? Object.fromEntries(new FormData(patientForm).entries()) : {},
+          }),
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Assistant request failed');
+        addBubble(data.reply, 'bot');
+      } catch (error) {
+        addBubble('Не удалось получить ответ. Попробуйте еще раз.', 'bot');
+      } finally {
+        sendButton.disabled = false;
+        sendButton.textContent = 'Спросить';
+      }
+    }
+
+    sendButton.addEventListener('click', () => askAssistant(messageInput.value));
+    messageInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        askAssistant(messageInput.value);
+      }
+    });
+
+    presetButtons.forEach((button) => {
+      button.addEventListener('click', () => askAssistant(button.dataset.question || ''));
+    });
+
+    addBubble('Привет. Я помогу понять поля формы, риск и ограничения модели.', 'bot');
+  </script>
 </body>
 </html>
